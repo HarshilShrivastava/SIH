@@ -3,7 +3,7 @@ from .views import QuestiontListViewset,DomainQuestiontListViewset,putgeneralmar
 
 from rest_framework import routers
 router = routers.DefaultRouter()
-router.register("get-question/",QuestiontListViewset)
+router.register("get-question",QuestiontListViewset)
 router.register("get-domain-question",DomainQuestiontListViewset)
 
 urlpatterns = [
