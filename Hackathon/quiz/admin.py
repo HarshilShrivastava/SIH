@@ -9,12 +9,28 @@ from quiz.models import (
     DomainAnswer
 
 )
+from import_export.admin import ImportExportModelAdmin
+
 # Register your models here.
 
-admin.site.register(Domain)
-admin.site.register(Question)
-admin.site.register(Answer)
-admin.site.register(GeneralMarks)
-admin.site.register(DomainQuestion)
-admin.site.register(DomainMarks)
-admin.site.register(DomainAnswer)
+@admin.register(Domain)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
+@admin.register(Question)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
+@admin.register(Answer)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
+@admin.register(GeneralMarks)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
+@admin.register(DomainQuestion)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
+@admin.register(DomainMarks)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
+@admin.register(DomainAnswer)
+class PersonAdmin(ImportExportModelAdmin):
+    pass
