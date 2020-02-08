@@ -27,5 +27,7 @@ urlpatterns = [
     path('account/',include("User.api.urls")),
     path("candidate/",include("Candidate.urls")),
     path("organization/",include("Organization.urls")),
+    path("image/",include("image.urls")),
+
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

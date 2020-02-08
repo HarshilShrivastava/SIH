@@ -3,6 +3,8 @@ from quiz.models import(
      DomainQuestion,
      Question
 )
+from django_filters.rest_framework import DjangoFilterBackend
+
 from quiz.api.serializers import (
 QuestionSerializer,
 AnswerSerializer,
@@ -21,8 +23,6 @@ class QuestiontListViewset(viewsets.ReadOnlyModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
     http_method_names = ['get']
-    #filter_backends = [DjangoFilterBackend]
-    #filter_fields = ['JEWELLER_ID', 'ORNAMENT_TYPE','ORNAMENT_MATERIAL','ORNAMENT_SHOPFOR']    
 
     def list(self, request, *args, **kwargs):
         self.object_list = self.filter_queryset(self.get_queryset())
@@ -32,14 +32,22 @@ class QuestiontListViewset(viewsets.ReadOnlyModelViewSet):
 class DomainQuestiontListViewset(viewsets.ReadOnlyModelViewSet):
     queryset = DomainQuestion.objects.all()
     serializer_class = DomainQuestionSerializer
-    http_method_names = ['get']
-    #filter_backends = [DjangoFilterBackend]
-    #filter_fields = ['JEWELLER_ID', 'ORNAMENT_TYPE','ORNAMENT_MATERIAL','ORNAMENT_SHOPFOR']    
+    http_method_names = ['get']   
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['Domain']
 
     def list(self, request, *args, **kwargs):
+        context={}
+        data={}
+        queryset=Jobs.objects.all()
+        context['sucess']=True
+        context['status']=200
+        context['response']="sucessfull"
         self.object_list = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(self.object_list, many=True)
-        return Response({'Question_list': serializer.data})
+        data=serializer.data
+        context['data']=data
+        return Response({context})
 
 
 @api_view( ['POST'])

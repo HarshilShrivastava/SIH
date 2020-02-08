@@ -1,7 +1,11 @@
 from django.shortcuts import render
 from .models import Company,Jobs
+from rest_framework import generics
+
 from rest_framework import status
 from rest_framework.response import Response 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import (
     api_view,
@@ -11,6 +15,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from .serializers import companyserializer,jobserializer
 from rest_framework.views import APIView
+from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 
 
 class Companyprofile(APIView):
@@ -41,40 +47,81 @@ class Companyprofile(APIView):
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class Jobsprofile(APIView):
+
+class jobviewset(viewsets.ModelViewSet):
+    serializer_class = jobserializer
+    queryset=Jobs.objects.all()
     permission_classes = [IsAuthenticated]
-    def post(self, request, *args, **kwargs):
-        if request.user.Is_Organization == 1:
-            serializer=jobserializer(data=request.data)
-            if serializer.is_valid():
-                a=request.user
-                obj=Company.objects.get(User=request.user)
-                serializer.save(From=obj)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    authentication_classes = (TokenAuthentication,)
+
+    http_method_names=['get','post','put','delete']
+    def create(self, request,*kwargs):
+        context={}
+        data={}
+        user=self.request.user
+        companyobj=Company.objects.get(User=self.request.user)
+        serializer=jobserializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(by=companyobj)
+            context['sucess']=True
+            context['response']="sucessfull"
+            context['status']=200
+            data=serializer.data
+            context['data']=data
+            return Response(context)
         else:
-            return Response( status=status.HTTP_400_BAD_REQUEST)
-    def get(self, request, *args, **kwargs):
-        obj=Company.objects.get(User=request.user)
-        qs=Jobs.objects.filter(by=obj)
-        serializer=jobserializer(qs,many=True)
-        return Response(serializer.data)
+            return Response(serializer.errors)
 
 
-@api_view(['GET'])
-def detail(request,id):
-    qs=Jobs.objects.filter(id=id)
-    serializer=jobserializer(qs,many=True)
-    return Response(serializer.data)
+    def list(self, request,*kwargs):
+        context={}
+        data={}
+        user=self.request.user
+        companyobj=get_object_or_404(Company,User=user)
+        queryset=Jobs.objects.filter(by=companyobj)
+        context['sucess']=True
+        context['status']=200
+        context['response']="sucessfull"
+        serializer = jobserializer(queryset,many=True)
+        data=serializer.data
+        context['data']=data
+        return Response(context)
+    def post(self,request,*kwargs):
+        context={}
+        data={}
+        user=self.request.user
+        companyobj=get_object_or_404(Company,User=self.request.user)
+        serializer=jobserializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(by=companyobj)
+            context['sucess']=True
+            context['response']="sucessfull"
+            context['status']=200
+            data=serializer.data
+            context['data']=data
+            return Response(context)
 
 
 
+class RecommendedJobviewset(viewsets.ReadOnlyModelViewSet):
+    serializer_class = jobserializer
+    queryset=Jobs.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['Level','fields']
 
-
-
-        
-    
+    http_method_names=['get']
+    def list(self, request,*kwargs):
+        context={}
+        data={}
+        queryset=Jobs.objects.all()
+        context['sucess']=True
+        context['status']=200
+        context['response']="sucessfull"
+        self.object_list = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(self.object_list, many=True)
+        data=serializer.data
+        context['data']=data
+        return Response(context)
 
 
         

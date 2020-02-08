@@ -21,10 +21,3 @@ class MCQresult(models.Model):
     Skill2=models.CharField( max_length=50,null=True)
     Skill3=models.CharField( max_length=50,null=True)
     Skill4=models.CharField( max_length=50,null=True)    
-
-
-    
-# class Description(models.Model):
-#     From=models.ForeignKey(Recruit, on_delete=models.CASCADE)
-#     description=models.TextField()
-#     to=models.ForeignKey(Job, on_delete=models.CASCADE)

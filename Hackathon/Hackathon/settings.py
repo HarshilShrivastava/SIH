@@ -43,7 +43,9 @@ INSTALLED_APPS = [
     'corsheaders',
     "quiz",
     'import_export',
+    'django_filters',
 
+    'image',
     'User',
     "Organization"
 ]
@@ -145,4 +147,7 @@ REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
    'rest_framework.authentication.TokenAuthentication',
    )
+}
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
