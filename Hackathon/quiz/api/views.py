@@ -32,14 +32,13 @@ class QuestiontListViewset(viewsets.ReadOnlyModelViewSet):
 class DomainQuestiontListViewset(viewsets.ReadOnlyModelViewSet):
     queryset = DomainQuestion.objects.all()
     serializer_class = DomainQuestionSerializer
-    http_method_names = ['get']   
+    http_method_names = ['get']
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['Domain']
 
     def list(self, request, *args, **kwargs):
         context={}
         data={}
-        queryset=Jobs.objects.all()
         context['sucess']=True
         context['status']=200
         context['response']="sucessfull"
@@ -47,7 +46,7 @@ class DomainQuestiontListViewset(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(self.object_list, many=True)
         data=serializer.data
         context['data']=data
-        return Response({context})
+        return Response(context)
 
 
 @api_view( ['POST'])

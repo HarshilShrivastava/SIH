@@ -3,7 +3,7 @@ from .models import Company,Jobs
 from rest_framework import generics
 
 from rest_framework import status
-from rest_framework.response import Response 
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from django.shortcuts import render, get_object_or_404
@@ -20,8 +20,8 @@ from rest_framework.authentication import TokenAuthentication
 
 
 class Companyprofile(APIView):
-    parser_classes = (MultiPartParser, FormParser)
     permission_classes = [IsAuthenticated]
+    authentication_classes = (TokenAuthentication,)
     def post(self, request, *args, **kwargs):
         if request.user.Is_Organization == 1:
             serializer = companyserializer(data=request.data)
@@ -59,7 +59,7 @@ class jobviewset(viewsets.ModelViewSet):
         context={}
         data={}
         user=self.request.user
-        companyobj=Company.objects.get(User=self.request.user)
+        companyobj=Company.objects.get(User=request.user)
         serializer=jobserializer(data=request.data)
         if serializer.is_valid():
             serializer.save(by=companyobj)
@@ -90,7 +90,7 @@ class jobviewset(viewsets.ModelViewSet):
         context={}
         data={}
         user=self.request.user
-        companyobj=get_object_or_404(Company,User=self.request.user)
+        companyobj=get_object_or_404(Company,User=user)
         serializer=jobserializer(data=request.data)
         if serializer.is_valid():
             serializer.save(by=companyobj)
@@ -124,4 +124,4 @@ class RecommendedJobviewset(viewsets.ReadOnlyModelViewSet):
         return Response(context)
 
 
-        
+

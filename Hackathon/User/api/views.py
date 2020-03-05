@@ -29,32 +29,41 @@ LoginSerializer
 #permission_classes = [AllowAny]
 @permission_classes((AllowAny,))
 def registration_view(request):
-    if request.method=='POST':
-        serializer=RegistrationSerializer(data=request.data)
-        print("1")
-        data={}
+    if request.method == 'POST':
+        data = {}
+        context={}
+
+        # email = request.data.get('email')
+        # if validate_email(email) != None:
+        #     context['sucess'] = False
+        #     context['response'] = status.HTTP_403_FORBIDDEN
+        #     context['error_message'] = 'That email is already in use.'
+        #     context['data']=data
+        #     return Response(context)
+
+        serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
-            print("1")
-            account=serializer.save()
-            print("1")
-            data['status']=status.HTTP_201_CREATED
-            data['response']="Succesfully created kindly confirm mail to activate the account "
-            #token=Token.objects.create(user=account).key
-            current_site = get_current_site(request)
-            mail_subject = 'Activate your blog account.'
-            message = render_to_string('acc_active_email.html', {
-                'user': account,
-                'domain': current_site.domain,
-                'uid':urlsafe_base64_encode(force_bytes(account.pk)),
-                'token':account_activation_token.make_token(account),
-            })
-            to_email = account.email
-            email = EmailMessage(mail_subject, message, to=[to_email])
-            email.send()
+            user = serializer.save()
+            context['sucess'] = True
+            context['message'] = 'Sucessfully registered'
+            context['response'] = status.HTTP_201_CREATED
+            data['email'] = user.email
+            data['username'] = user.username
+            data['Is_University'] = user.Is_University
+            data['Is_Candidate'] = user.Is_Candidate
+            data['Is_Organization'] = user.Is_Organization
+            token = Token.objects.create(user=user).key
+            data['token'] = token
+            data = serializer.errors
+            context['data']=data
         else:
-           # data=serializer.errors
-            data['problem']='ddd'
-        return Response(data)
+            context['sucess'] = False
+            context['message'] = 'not registered registered'
+            context['response'] = status.HTTP_401_UNAUTHORIZED
+            data = serializer.errors
+            context['data']=data
+    return Response(context)
+
 
 
 @api_view(('GET',))
@@ -87,8 +96,12 @@ def ObtainAuthTokenView(request):
             usernam=serializer.validated_data['username']
             passwor=serializer.validated_data['password']
             account=authenticate(username=usernam ,password=passwor)
+
             if account:
-                token=Token.objects.create(user=account)
+                try:
+                    token = Token.objects.get(user=account)
+                except Token.DoesNotExist:
+                    token = Token.objects.create(user=account)
                 context['status']=200
                 context['token'] = token.key
                 context['Is_Organization']=account.Is_Organization
